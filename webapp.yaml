@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # API version for Deployments
+kind: Deployment # Type of Kubernetes resource
+metadata:
+    name: webapp-deployment # Name of the Deployment
+    labels:
+        app: webapp # Labels for identifying and grouping resources
+spec:
+    replicas: 1 # Number of desired pod replicas
+    selector:
+        matchLabels:
+            app: webapp # Selector to match pods to manage
+    template:
+        metadata:
+            labels:
+                app: webapp # Labels applied to the pods
+        spec:
+            containers:
+                - name: webapp
+                  image: nanajanashia/k8s-demo-app:v1.0 # Container image to use
+                  ports:
+                      - containerPort: 3000 # Port exposed by the container
+                  env:
+                      - name: USER_NAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: mongo-secret
+                                key: mongo-user
+                      - name: USER_PWD
+                        valueFrom:
+                            secretKeyRef:
+                                name: mongo-secret
+                                key: mongo-password
+                      - name: DB_URL
+                        valueFrom:
+                            configMapKeyRef:
+                                name: mongo-config
+                                key: mongo-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: webapp-service
+spec:
+    type: NodePort
+    selector:
+        app: webapp # Selects pods with the label "app: mongo"
+    ports:
+        - protocol: TCP
+          port: 3000 # Port exposed by the service
+          targetPort: 3000 # Port exposed by the pods
+          nodePort: 30100 #30000 - 32767 availaible ports

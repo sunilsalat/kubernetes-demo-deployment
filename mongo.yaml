@@ -1,0 +1,44 @@
+apiVersion: apps/v1 # API version for Deployments
+kind: Deployment # Type of Kubernetes resource
+metadata:
+    name: mongo-deployment # Name of the Deployment
+    labels:
+        app: mongo # Labels for identifying and grouping resources
+spec:
+    replicas: 1 # Number of desired pod replicas
+    selector:
+        matchLabels:
+            app: mongo # Selector to match pods to manage
+    template:
+        metadata:
+            labels:
+                app: mongo # Labels applied to the pods
+        spec:
+            containers:
+                - name: mongodb
+                  image: mongo # Container image to use
+                  ports:
+                      - containerPort: 27017 # Port exposed by the container
+                  env:
+                      - name: MONGO_INITDB_ROOT_USERNAME
+                        valueFrom:
+                            secretKeyRef:
+                                name: mongo-secret
+                                key: mongo-user
+                      - name: MONGO_INITDB_ROOT_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: mongo-secret
+                                key: mongo-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mongo-service
+spec:
+    selector:
+        app: mongo # Selects pods with the label "app: mongo"
+    ports:
+        - protocol: TCP
+          port: 27017 # Port exposed by the service
+          targetPort: 27017 # Port exposed by the pods

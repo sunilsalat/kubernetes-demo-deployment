@@ -4,6 +4,9 @@ echo -n "This is a string to be encoded." | base64
 
 ## kubectl useful commands
 
+-   kubectl apply -f <filename>
+-   kubectl delete -f <filename>
+-   kubectl rollout restart deployment <deploymentname>
 -   kubectl get all / pods / deployment
 -   kubectl get configmap
 -   kubectl get secret
